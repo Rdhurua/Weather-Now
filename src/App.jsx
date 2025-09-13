@@ -1,6 +1,23 @@
-// App.jsx
 import { useState } from "react";
 import TemperatureChart from "./components/TemperatureChart";
+import { CalendarDays, MapPin, WindArrowDown } from "lucide-react";
+import { WiHumidity } from "react-icons/wi";
+
+const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+const months = [
+  "January", 
+  "February", 
+  "March", 
+  "April", 
+  "May", 
+  "June", 
+  "July", 
+  "August", 
+  "September", 
+  "October", 
+  "November", 
+  "December"
+];
 
 const weatherCodes = {
   // Clear & Cloudy
@@ -54,13 +71,13 @@ const weatherCodes = {
   99: "Thunderstorm with heavy hail ⛈️❄️⚡",
 };
 
-
 export default function App() {
   const [city, setCity] = useState("");
   const [weather, setWeather] = useState(null);
   const [forecast, setForecast] = useState(null);
   const [humidity, setHumidity] = useState(null);
-  const [hourly,setHourly]=useState(null);
+  const [hourly, setHourly] = useState(null);
+
   const fetchWeather = async () => {
     if (!city) return;
 
@@ -75,9 +92,9 @@ export default function App() {
     }
     const { latitude, longitude, name, country } = geoData.results[0];
 
-    // 2. Get current weather + daily + humidity
+    // 2. Get weather data
     const weatherRes = await fetch(
-      `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,windspeed_10m_max,weathercode&hourly=relativehumidity_2m&timezone=auto`
+      `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,windspeed_10m_max,weathercode&hourly=temperature_2m,relativehumidity_2m&timezone=auto`
     );
     const weatherData = await weatherRes.json();
 
@@ -87,13 +104,17 @@ export default function App() {
       ...weatherData.current_weather,
     });
 
-    setForecast(await weatherData.daily);
-    console.log(await weatherData.daily);
+    setForecast(weatherData.daily);
     setHourly(weatherData.hourly);
 
-    // 3. Get humidity of current hour
-    const currentHour = new Date().getHours();
-    setHumidity(weatherData.hourly.relativehumidity_2m[currentHour]);
+    // 3. Find humidity for the current local hour
+    const nowHour = new Date().toISOString().slice(0, 13); // YYYY-MM-DDTHH
+    const idx = weatherData.hourly.time.findIndex((t) =>
+      t.startsWith(nowHour)
+    );
+    if (idx !== -1) {
+      setHumidity(weatherData.hourly.relativehumidity_2m[idx]);
+    }
   };
 
   return (
@@ -119,30 +140,62 @@ export default function App() {
 
       {/* Current Weather */}
       {weather && (
-        <div className="mt-8 p-6 bg-white/20 rounded-2xl shadow-lg backdrop-blur-lg text-center w-full max-w-md">
-          <h2 className="text-2xl font-semibold">
-            {weather.city}, {weather.country}
-          </h2>
-          <p className="text-5xl font-bold mt-2">{weather.temperature}°C</p>
-          <p className="text-lg mt-2">
-            {weatherCodes[weather.weathercode] || "Unknown"}
-          </p>
-          <div className="flex justify-around mt-4 text-sm">
-            <p>💧 Humidity: {humidity}%</p>
-            <p>💨 Wind: {weather.windspeed} km/h</p>
-          </div>
-          <p className="text-xs mt-2">⏰ {weather.time}</p>
-        </div>
+       <div className="mt-8 p-6 bg-white/20 rounded-2xl shadow-lg backdrop-blur-lg 
+                text-center w-full max-w-md sm:max-w-lg lg:max-w-xl h-auto mx-auto">
+
+  {/* Date */}
+  <div className="flex flex-col sm:flex-row justify-center items-center gap-1">
+    <CalendarDays className="text-sm sm:text-base" />
+    <p className="text-base sm:text-lg mt-1 sm:mt-0">{days[new Date().getDay()]}, {months[new Date().getMonth()]} {new Date().getDate()}</p>
+  </div>
+
+  {/* Location */}
+  <div className="flex flex-col sm:flex-row justify-center items-center gap-1 mt-2">
+    <MapPin className="text-base sm:text-lg" />
+    <h2 className="text-base sm:text-lg font-semibold text-center sm:text-left">
+      {weather.city}, {weather.country}
+    </h2>
+  </div>
+
+  {/* Temperature */}
+  <p className="text-4xl sm:text-5xl md:text-6xl font-bold mt-3">
+    {weather.temperature}°C
+  </p>
+
+  {/* Weather condition */}
+  <p className="text-base sm:text-lg mt-2">
+    {weatherCodes[weather.weathercode] || "Unknown"}
+  </p>
+
+  {/* Extra info */}
+  <div className="flex flex-col sm:flex-row justify-around mt-5 text-sm gap-4 sm:gap-0">
+    <div className="flex flex-col items-center">
+     <p className="flex justify-between"> <WiHumidity className="text-lg sm:text-xl" /><span>Humidity</span></p>
+      <span className="text-xl sm:text-2xl md:text-3xl">
+        {humidity ?? "--"}%
+      </span>
+    </div>
+    <div className="flex flex-col items-center">
+   <p className="flex justify-between"><WindArrowDown className="text-lg sm:text-xl" /> <span>Wind</span></p>
+      <span className="text-xl sm:text-2xl md:text-3xl">
+        {weather.windspeed} km/h
+      </span>
+    </div>
+  </div>
+</div>
+
       )}
 
-<TemperatureChart hourly={hourly}/>
+      {
+    hourly&&
+      <TemperatureChart hourly={hourly} />
+      }
+
       {/* 10-Day Forecast */}
       {forecast && (
         
         <div className="mt-10 grid grid-cols-2 sm:grid-cols-5 gap-4 w-full max-w-4xl">
-          {
-          
-          forecast.time.map((day, i) => (
+          {forecast.time.map((day, i) => (
             <div
               key={i}
               className="p-4 bg-white/20 rounded-xl text-center backdrop-blur-lg"
@@ -162,7 +215,9 @@ export default function App() {
               <p className="text-xs mt-1">
                 💧 {forecast.precipitation_sum[i]} mm
               </p>
-              <p className="text-xs">💨 {forecast.windspeed_10m_max[i]} km/h</p>
+              <p className="text-xs">
+                💨 {forecast.windspeed_10m_max[i]} km/h
+              </p>
             </div>
           ))}
         </div>

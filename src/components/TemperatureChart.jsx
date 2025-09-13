@@ -1,4 +1,5 @@
 // TemperatureChart.jsx
+import React, { useMemo } from "react";
 import {
   LineChart,
   Line,
@@ -9,17 +10,53 @@ import {
 } from "recharts";
 
 export default function TemperatureChart({ hourly }) {
-  if (!hourly) return null;
+  // Prepare data only when hourly is valid
+  const data = useMemo(() => {
+    if (
+      !hourly ||
+      !Array.isArray(hourly.time) ||
+      !Array.isArray(hourly.temperature_2m)
+    ) {
+      return [];
+    }
 
-  // Prepare data for today only
-  const today = new Date().toISOString().split("T")[0];
-  const data = hourly.time
-    .map((t, i) => ({
-      time: t.slice(11, 16), // extract HH:MM
-      temp: hourly.temperature_2m[i],
-      date: t.split("T")[0],
-    }))
-    .filter((d) => d.date === today);
+    // Today's date in YYYY-MM-DD (note: API used timezone=auto, so times should match)
+    const today = new Date().toISOString().split("T")[0];
+
+    const len = Math.min(hourly.time.length, hourly.temperature_2m.length);
+    const out = [];
+
+    for (let i = 0; i < len; i++) {
+      const iso = hourly.time[i];
+      if (!iso) continue;
+      const [date, time] = iso.split("T");
+      if (date === today) {
+        out.push({
+          time: (time || "").slice(0, 5), // HH:MM
+          temp: hourly.temperature_2m[i],
+        });
+      }
+    }
+
+    return out;
+  }, [hourly]);
+
+  // Defensive UI for missing/empty data
+  if (!hourly) {
+    return (
+      <div className="p-4 bg-white/10 rounded-lg text-center text-sm">
+        Loading hourly data...
+      </div>
+    );
+  }
+
+  if (data.length === 0) {
+    return (
+      <div className="p-4 bg-white/10 rounded-lg text-center text-sm">
+        No hourly temperature data available for today.
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white/20 backdrop-blur-lg rounded-xl p-4 mt-8 w-full max-w-3xl">
@@ -36,8 +73,8 @@ export default function TemperatureChart({ hourly }) {
             dataKey="temp"
             stroke="#facc15"
             strokeWidth={3}
-            dot={{ r: 4 }}
-            activeDot={{ r: 6 }}
+            dot={{ r: 3 }}
+            activeDot={{ r: 5 }}
           />
         </LineChart>
       </ResponsiveContainer>
