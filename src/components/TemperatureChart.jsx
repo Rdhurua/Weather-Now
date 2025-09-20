@@ -59,7 +59,7 @@ export default function TemperatureChart({ hourly }) {
   }
 
   return (
-    <div className="bg-white/20 backdrop-blur-lg rounded-xl p-4 mt-8 w-full max-w-3xl">
+    <div className=" backdrop-blur-lg rounded-xl p-4 mt-8 w-full max-w-3xl">
       <h2 className="text-xl font-semibold text-center mb-4">
         🌡️ Today’s Temperature Trend
       </h2>
