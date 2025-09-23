@@ -63,10 +63,10 @@ export default function TemperatureChart({ hourly }) {
       <h2 className="text-xl font-semibold text-center mb-4">
         🌡️ Today’s Temperature Trend
       </h2>
-      <ResponsiveContainer width="100%" height={250}>
+      <ResponsiveContainer width="100%" height={250} className="bg-transparent">
         <LineChart data={data}>
-          <XAxis dataKey="time" />
-          <YAxis />
+          <XAxis dataKey="time" className="text-white" />
+          <YAxis className="text-white" />
           <Tooltip />
           <Line
             type="monotone"
