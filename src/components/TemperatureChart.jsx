@@ -20,7 +20,6 @@ export default function TemperatureChart({ hourly }) {
       return [];
     }
 
-    // Today's date in YYYY-MM-DD (note: API used timezone=auto, so times should match)
     const today = new Date().toISOString().split("T")[0];
 
     const len = Math.min(hourly.time.length, hourly.temperature_2m.length);
@@ -61,13 +60,21 @@ export default function TemperatureChart({ hourly }) {
   return (
     <div className=" backdrop-blur-lg rounded-xl p-4 mt-8 w-full max-w-3xl">
       <h2 className="text-xl font-semibold text-center mb-4">
-        🌡️ Today’s Temperature Trend
+       Temperature Status
       </h2>
-      <ResponsiveContainer width="100%" height={250} >
+      <ResponsiveContainer width="100%" height={250}>
         <LineChart data={data} className="text-white">
-          <XAxis dataKey="time" />
-          <YAxis className="text-white" />
-          <Tooltip />
+          <XAxis dataKey="time" stroke="#ffffff" />
+          <YAxis stroke="#ffffff" />
+          <Tooltip
+            contentStyle={{
+              backgroundColor: "#1f2937",
+              borderRadius: "8px",
+              color: "#fff",
+            }}
+            labelStyle={{ color: "#facc15" }}
+            itemStyle={{ color: "#fff" }}
+          />
           <Line
             type="monotone"
             dataKey="temp"

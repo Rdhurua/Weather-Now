@@ -67,8 +67,8 @@ export default function App() {
        <h1 className="mx-4 font-semibold text-md text-transparent bg-clip-text 
                bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 
                bg-[length:200%_200%] animate-gradient-x">
-  Weather Now
-</h1>
+           Weather Now
+         </h1>
         <div className="flex gap-2">
           <input
             type="text"
@@ -87,7 +87,7 @@ export default function App() {
       </div>
 
       {loading && (
-        <div className="text-2xl text-yellow-400 font-semibold flex justify-center items-center w-full h-[55vh] p-15">
+        <div className="text-2xl text-green-600 font-semibold flex justify-center items-center w-full h-[55vh] p-15">
           Loading....
         </div>
       )}
@@ -99,7 +99,7 @@ export default function App() {
             {weather && (
               <div
                 className="mt-8 p-6 rounded-2xl shadow-lg backdrop-blur-lg 
-        text-center w-full max-w-md sm:max-w-lg lg:max-w-xl h-auto mx-auto"
+        text-center w-full max-w-md sm:max-w-lg lg:max-w-xl h-auto mx-auto border-t-2 border-b-2"
               >
                 {/* Date */}
                 <div className="flex flex-col sm:flex-row justify-center items-center gap-1">
@@ -111,16 +111,16 @@ export default function App() {
                 </div>
 
                 {/* Location */}
-                <div className="flex flex-col sm:flex-row justify-center items-center gap-1 mt-2">
-                  <MapPin className="text-base sm:text-lg" />
+                <div className="flex flex-col sm:flex-row justify-center items-center gap-2 mt-2">
+                  <MapPin className="text-base sm:text-lg text-red-500" />
                   <h2 className="text-base sm:text-lg font-semibold text-center sm:text-left">
                     {weather.city}, {weather.country}
                   </h2>
                 </div>
 
                 {/* Temperature */}
-                <p className="text-4xl sm:text-5xl md:text-6xl font-bold mt-3">
-                  {weather.temperature}°C
+                <p className="text-4xl sm:text-5xl md:text-8xl font-semibold  mt-3">
+                  {weather.temperature}<sup>&deg;</sup>C
                 </p>
 
                 <div className="flex justify-center my-2">
@@ -195,13 +195,15 @@ export default function App() {
           </div>
 
           {/* Hourly Chart */}
-          <div className="mt-8 w-full">
-            {hourly && (
-              <div className="w-full overflow-x-auto">
-                <TemperatureChart hourly={hourly} />
-              </div>
-            )}
-          </div>
+          <div className="mt-12 w-full flex justify-center">
+  {hourly && (
+    <div className="w-full max-w-4xl backdrop-blur-md rounded-2xl shadow-lg p-6">
+
+      <TemperatureChart hourly={hourly} />
+    </div>
+  )}
+</div>
+
         </div>
       )}
     </div>
