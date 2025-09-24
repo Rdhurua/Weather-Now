@@ -63,28 +63,32 @@ export default function App() {
   return (
     <div className="flex flex-col items-center min-h-screen  text-white p-6">
       {/* Search Bar */}
-      <div className="flex justify-around w-full">
-       <h1 className="mx-4 font-semibold text-md text-transparent bg-clip-text 
-               bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 
-               bg-[length:200%_200%] animate-gradient-x">
-           Weather Now
-         </h1>
-        <div className="flex gap-2">
-          <input
-            type="text"
-            placeholder="Enter city..."
-            value={city}
-            onChange={(e) => setCity(e.target.value)}
-            className="px-4 py-2 rounded-lg text-white outline-1 outline-blue-700"
-          />
-          <button
-            onClick={fetchWeather}
-            className="bg-yellow-400 hover:bg-yellow-500 text-white px-4 py-2 rounded-lg font-semibold"
-          >
-            Search
-          </button>
-        </div>
-      </div>
+      <div className="flex flex-col sm:flex-row justify-between items-center w-full gap-4">
+  {/* Title */}
+  <h1 className="mx-0 sm:mx-4 font-semibold text-xl sm:text-md text-center sm:text-left text-transparent bg-clip-text 
+      bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 
+      bg-[length:200%_200%] animate-gradient-x">
+    Weather Now
+  </h1>
+
+  {/* Search bar */}
+  <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+    <input
+      type="text"
+      placeholder="Enter city..."
+      value={city}
+      onChange={(e) => setCity(e.target.value)}
+      className="px-4 py-2 rounded-lg text-white outline-none border border-gray-600  flex-1"
+    />
+    <button
+      onClick={fetchWeather}
+      className="bg-yellow-400 hover:bg-yellow-500 text-white px-4 py-2 rounded-lg font-semibold"
+    >
+      Search
+    </button>
+  </div>
+   </div>
+
 
       {loading && (
         <div className="text-2xl text-green-600 font-semibold flex justify-center items-center w-full h-[55vh] p-15">
@@ -196,7 +200,7 @@ export default function App() {
 
           {/* Hourly Chart */}
           <div className="mt-12 w-full flex justify-center">
-  {hourly && (
+      {hourly && (
     <div className="w-full max-w-4xl backdrop-blur-md rounded-2xl shadow-lg p-6">
 
       <TemperatureChart hourly={hourly} />

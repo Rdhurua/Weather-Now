@@ -1,4 +1,3 @@
-// TemperatureChart.jsx
 import React, { useMemo } from "react";
 import {
   LineChart,
@@ -10,18 +9,14 @@ import {
 } from "recharts";
 
 export default function TemperatureChart({ hourly }) {
-  // Prepare data only when hourly is valid
   const data = useMemo(() => {
     if (
       !hourly ||
       !Array.isArray(hourly.time) ||
       !Array.isArray(hourly.temperature_2m)
-    ) {
-      return [];
-    }
+    ) return [];
 
     const today = new Date().toISOString().split("T")[0];
-
     const len = Math.min(hourly.time.length, hourly.temperature_2m.length);
     const out = [];
 
@@ -36,11 +31,9 @@ export default function TemperatureChart({ hourly }) {
         });
       }
     }
-
     return out;
   }, [hourly]);
 
-  // Defensive UI for missing/empty data
   if (!hourly) {
     return (
       <div className="p-4 bg-white/10 rounded-lg text-center text-sm">
@@ -58,33 +51,42 @@ export default function TemperatureChart({ hourly }) {
   }
 
   return (
-    <div className=" backdrop-blur-lg rounded-xl p-4 mt-8 w-full max-w-3xl">
+    <div className="backdrop-blur-lg rounded-xl p-4 mt-8 w-full overflow-x-auto">
       <h2 className="text-xl font-semibold text-center mb-4">
-       Temperature Status
+        Temperature Status
       </h2>
-      <ResponsiveContainer width="100%" height={250}>
-        <LineChart data={data} className="text-white">
-          <XAxis dataKey="time" stroke="#ffffff" />
-          <YAxis stroke="#ffffff" />
-          <Tooltip
-            contentStyle={{
-              backgroundColor: "#1f2937",
-              borderRadius: "8px",
-              color: "#fff",
-            }}
-            labelStyle={{ color: "#facc15" }}
-            itemStyle={{ color: "#fff" }}
-          />
-          <Line
-            type="monotone"
-            dataKey="temp"
-            stroke="#facc15"
-            strokeWidth={3}
-            dot={{ r: 3 }}
-            activeDot={{ r: 5 }}
-          />
-        </LineChart>
-      </ResponsiveContainer>
+
+      {/* Make chart width large for mobile, scrollable horizontally */}
+      <div style={{ minWidth: `${Math.max(data.length * 50, 300)}px` }}>
+        <ResponsiveContainer width="100%" height={250}>
+          <LineChart data={data}>
+            <XAxis
+              dataKey="time"
+              stroke="#ffffff"
+              tick={{ fontSize: 12 }}
+              interval={Math.floor(data.length / 6)} // show ~6 labels max
+            />
+            <YAxis stroke="#ffffff" tick={{ fontSize: 12 }} />
+            <Tooltip
+              contentStyle={{
+                backgroundColor: "#1f2937",
+                borderRadius: "8px",
+                color: "#fff",
+              }}
+              labelStyle={{ color: "#facc15" }}
+              itemStyle={{ color: "#fff" }}
+            />
+            <Line
+              type="monotone"
+              dataKey="temp"
+              stroke="#facc15"
+              strokeWidth={3}
+              dot={{ r: 3 }}
+              activeDot={{ r: 5 }}
+            />
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
     </div>
   );
 }
